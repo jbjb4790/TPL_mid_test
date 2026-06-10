@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#071c4d" />
+  <title>Young's Physics 온라인 시험</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script defer src="./config.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="Young's Physics 홈">
+      <img src="./assets/youngs-physics-logo.png" alt="Young's Physics 로고" />
+    </a>
+    <div class="header-meta" aria-live="polite">
+      <div class="header-pill" id="headerExamPill">시험 선택 전</div>
+      <div id="timerBox" class="timer" hidden>
+        <span>남은 시간</span>
+        <strong id="timerText">00:00</strong>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="landingSection" class="hero-section">
+      <div class="hero-copy">
+        <p class="eyebrow">Young's Physics Exam Lab</p>
+        <h1>물리 실력을 정확하게 기록하는 온라인 시험 공간</h1>
+        <p class="hero-description">문항은 한 문제씩 집중해서 풀고, 응답과 점수는 Google Sheets에 자동 기록됩니다. 시험 선택부터 제출까지 Young's Physics 브랜딩에 맞춘 화면으로 구성했습니다.</p>
+        <div class="hero-actions">
+          <a href="#startCard" class="primary-link">응시 정보 입력하기</a>
+          <button id="previewFirstExamBtn" class="ghost-button" type="button">첫 시험 미리 선택</button>
+        </div>
+      </div>
+
+      <aside class="hero-panel" aria-label="사이트 요약">
+        <div class="orbit-card">
+          <div class="atom-mark" aria-hidden="true">∿</div>
+          <p>Configured Exams</p>
+          <strong id="examCountText">5</strong>
+        </div>
+        <div class="metric-grid">
+          <div>
+            <span>문항 표시</span>
+            <strong>1문항씩</strong>
+          </div>
+          <div>
+            <span>채점 방식</span>
+            <strong>서버 채점</strong>
+          </div>
+          <div>
+            <span>기록 위치</span>
+            <strong>Google Sheets</strong>
+          </div>
+          <div>
+            <span>화면 최적화</span>
+            <strong>Mobile Ready</strong>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="startCard" class="content-shell start-shell">
+      <div class="exam-select-card glass-card">
+        <p class="eyebrow">Select Exam</p>
+        <h2>응시할 시험 선택</h2>
+        <p class="muted">시험을 선택하면 문항 수, 제한 시간, 선택지 수가 자동으로 반영됩니다.</p>
+
+        <label class="select-label" for="examSelect">
+          시험 목록
+          <select id="examSelect"></select>
+        </label>
+
+        <div id="examQuickList" class="exam-quick-list" aria-label="시험 빠른 선택"></div>
+
+        <div class="selected-exam-panel">
+          <span class="selected-badge" id="selectedExamBadge">선택됨</span>
+          <h3 id="selectedExamTitle">시험명</h3>
+          <p id="selectedExamDescription" class="muted"></p>
+          <div class="selected-meta-grid">
+            <div>
+              <span>문항 수</span>
+              <strong id="selectedExamQuestions">-</strong>
+            </div>
+            <div>
+              <span>제한 시간</span>
+              <strong id="selectedExamDuration">-</strong>
+            </div>
+            <div>
+              <span>응시 기간</span>
+              <strong id="selectedExamWindow">-</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="student-card glass-card">
+        <p class="eyebrow">Check-in</p>
+        <h2>응시 정보 입력</h2>
+        <p class="muted">이름과 고유 ID를 입력한 뒤 시작하면 서버 기준으로 제한 시간이 기록됩니다.</p>
+
+        <form id="startForm" class="student-form">
+          <label>
+            반 / 소속
+            <input id="className" name="className" type="text" placeholder="예: 2학년 A반" autocomplete="organization" />
+          </label>
+          <label>
+            이름 <span class="required">*</span>
+            <input id="studentName" name="studentName" type="text" placeholder="예: 홍길동" required autocomplete="name" />
+          </label>
+          <label>
+            학번 또는 고유 ID <span class="required">*</span>
+            <input id="studentId" name="studentId" type="text" placeholder="중복 제출 방지용" required autocomplete="off" />
+          </label>
+          <button id="startBtn" type="submit" class="primary-button">시험 시작</button>
+        </form>
+
+        <div class="operator-note">
+          <strong>운영자 확인</strong>
+          <p><code>config.js</code>의 <code>appsScriptUrl</code>을 Apps Script 웹 앱 URL로 바꿔야 실제 채점과 시트 기록이 동작합니다.</p>
+        </div>
+        <p id="startMessage" class="message" role="status"></p>
+      </div>
+    </section>
+
+    <section id="quizCard" class="quiz-layout" hidden>
+      <aside class="quiz-side glass-card">
+        <div class="side-logo-wrap">
+          <img src="./assets/youngs-physics-logo.png" alt="Young's Physics 로고" />
+        </div>
+        <p class="eyebrow">Question Map</p>
+        <h2 id="sideExamTitle">시험명</h2>
+        <p id="sideStudentInfo" class="muted"></p>
+        <div class="side-progress">
+          <span id="answeredCountText">0 / 18 응답</span>
+          <div class="progress-wrap" aria-label="진행률">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+        </div>
+        <div id="questionNav" class="question-nav" aria-label="문항 번호 네비게이션"></div>
+        <button id="sideSubmitBtn" class="secondary-button full-width" type="button">제출 확인</button>
+      </aside>
+
+      <section class="question-panel glass-card">
+        <div class="question-topline">
+          <div>
+            <p id="questionCounter" class="eyebrow">문항</p>
+            <h2 id="questionTitle">1번</h2>
+          </div>
+          <div class="question-status">
+            <span id="choiceCountPill">5지선다</span>
+            <span id="answeredPill">미응답</span>
+          </div>
+        </div>
+
+        <figure class="question-figure">
+          <img id="questionImage" alt="문제 이미지" />
+        </figure>
+
+        <div class="answer-panel">
+          <div class="answer-panel-head">
+            <div>
+              <p class="answer-title">정답을 선택하세요</p>
+              <p class="answer-subtitle">선택 후 다음 문항으로 자동 이동합니다. 문항 번호 버튼으로 다시 확인할 수 있습니다.</p>
+            </div>
+          </div>
+          <div id="choiceGrid" class="choice-grid" aria-label="선택지"></div>
+        </div>
+
+        <div class="quiz-actions">
+          <button id="prevBtn" class="secondary-button" type="button">이전 문항</button>
+          <button id="nextBtn" class="secondary-button" type="button">다음 문항</button>
+          <button id="submitBtn" class="primary-button" type="button">제출 확인</button>
+        </div>
+        <p id="quizMessage" class="message" role="status"></p>
+      </section>
+    </section>
+
+    <section id="resultCard" class="result-card glass-card" hidden>
+      <img class="result-logo" src="./assets/youngs-physics-logo.png" alt="Young's Physics 로고" />
+      <p class="eyebrow">Submission Complete</p>
+      <h2 id="resultTitle">결과</h2>
+      <p id="resultScore" class="score"></p>
+      <p id="resultPercent" class="result-percent"></p>
+      <p id="resultMessage" class="muted"></p>
+      <div class="result-actions">
+        <button id="restartUiBtn" class="secondary-button" type="button">처음 화면으로 돌아가기</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="confirmOverlay" class="modal-overlay" hidden>
+    <section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <button id="modalCloseBtn" class="modal-close" type="button" aria-label="닫기">×</button>
+      <p class="eyebrow">Final Check</p>
+      <h2 id="confirmTitle">제출 전 최종 확인</h2>
+      <p id="confirmSummary" class="modal-summary"></p>
+      <div id="answerReviewGrid" class="answer-review-grid" aria-label="답안 검토"></div>
+      <div class="modal-warning">
+        <strong>제출 후에는 수정할 수 없습니다.</strong>
+        <span>응시 정보와 답안 상태를 확인한 뒤 제출하세요.</span>
+      </div>
+      <div class="modal-actions">
+        <button id="modalCancelBtn" class="secondary-button" type="button">계속 풀기</button>
+        <button id="modalSubmitBtn" class="primary-button" type="button">최종 제출</button>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

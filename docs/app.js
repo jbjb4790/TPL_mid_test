@@ -527,7 +527,9 @@
   }
 
   function formatWindow(openAt, closeAt) {
-    if (!openAt || !closeAt) return "운영자 설정";
+    if (!openAt && !closeAt) return "언제든 시작 가능";
+    if (openAt && !closeAt) return `${formatDateTime(openAt)}부터 시작 가능`;
+    if (!openAt && closeAt) return `${formatDateTime(closeAt)}까지 시작 가능`;
     return `${formatDateTime(openAt)} ~ ${formatDateTime(closeAt)}`;
   }
 

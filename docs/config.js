@@ -9,11 +9,23 @@ window.YP_EXAM_CONFIG = {
   // Google Apps Script 배포 후 /exec 로 끝나는 웹 앱 URL을 붙여 넣으세요.
   appsScriptUrl: "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE",
 
+  // 공개 가능한 채점 안내입니다. 실제 채점은 Apps Script의 SCORING_POLICY로 진행됩니다.
+  scoring: {
+    totalPoints: 100,
+    wrongPenaltyFraction: 1 / 4,
+    blankPoints: 0,
+    showScoreImmediately: true,
+    label: "100점 만점 · 정답 +배점 · 오답 -배점의 1/4 · 미응답 0점"
+  },
+
   defaultExamId: "physics-2026-mid-1",
   autoAdvance: true,
   autoAdvanceDelayMs: 220,
   allowQuestionNavigation: true,
 
+
+  // openAt/closeAt이 null이면 학생들은 언제든 시작할 수 있고,
+  // 시작한 순간부터 durationSeconds 동안만 응시할 수 있습니다.
   exams: [
     {
       id: "physics-2026-mid-1",
@@ -23,9 +35,9 @@ window.YP_EXAM_CONFIG = {
       year: "2026",
       round: "제1회",
       folder: "2026-1-mid",
-      durationSeconds: 40 * 60,
-      openAt: "2026-06-09T09:00:00+09:00",
-      closeAt: "2026-06-09T18:00:00+09:00",
+      durationSeconds: 60 * 60,
+      openAt: null,
+      closeAt: null,
       defaultChoiceCount: 5,
       questions: makeQuestions("2026-1-mid", 18)
     },
@@ -37,9 +49,9 @@ window.YP_EXAM_CONFIG = {
       year: "2025",
       round: "제2회",
       folder: "2025-2-mid",
-      durationSeconds: 40 * 60,
-      openAt: "2026-06-09T09:00:00+09:00",
-      closeAt: "2026-06-09T18:00:00+09:00",
+      durationSeconds: 60 * 60,
+      openAt: null,
+      closeAt: null,
       defaultChoiceCount: 5,
       questions: makeQuestions("2025-2-mid", 18)
     },
@@ -51,9 +63,9 @@ window.YP_EXAM_CONFIG = {
       year: "2025",
       round: "제1회",
       folder: "2025-1-mid",
-      durationSeconds: 40 * 60,
-      openAt: "2026-06-09T09:00:00+09:00",
-      closeAt: "2026-06-09T18:00:00+09:00",
+      durationSeconds: 60 * 60,
+      openAt: null,
+      closeAt: null,
       defaultChoiceCount: 5,
       questions: makeQuestions("2025-1-mid", 18)
     },
@@ -65,9 +77,9 @@ window.YP_EXAM_CONFIG = {
       year: "2024",
       round: "제2회",
       folder: "2024-2-mid",
-      durationSeconds: 40 * 60,
-      openAt: "2026-06-09T09:00:00+09:00",
-      closeAt: "2026-06-09T18:00:00+09:00",
+      durationSeconds: 60 * 60,
+      openAt: null,
+      closeAt: null,
       defaultChoiceCount: 5,
       questions: makeQuestions("2024-2-mid", 18, {
         2: 4,
@@ -83,9 +95,9 @@ window.YP_EXAM_CONFIG = {
       year: "2024",
       round: "제1회",
       folder: "2024-1-mid",
-      durationSeconds: 40 * 60,
-      openAt: "2026-06-09T09:00:00+09:00",
-      closeAt: "2026-06-09T18:00:00+09:00",
+      durationSeconds: 60 * 60,
+      openAt: null,
+      closeAt: null,
       defaultChoiceCount: 5,
       questions: makeQuestions("2024-1-mid", 18)
     }

@@ -51,15 +51,15 @@
           </div>
           <div>
             <span>채점 방식</span>
-            <strong>서버 채점</strong>
+            <strong>100점·감점</strong>
           </div>
           <div>
             <span>기록 위치</span>
             <strong>Google Sheets</strong>
           </div>
           <div>
-            <span>화면 최적화</span>
-            <strong>Mobile Ready</strong>
+            <span>응시 시간</span>
+            <strong>시작 후 60분</strong>
           </div>
         </div>
       </aside>
@@ -92,8 +92,12 @@
               <strong id="selectedExamDuration">-</strong>
             </div>
             <div>
-              <span>응시 기간</span>
+              <span>응시 방식</span>
               <strong id="selectedExamWindow">-</strong>
+            </div>
+            <div class="wide-meta">
+              <span>채점 방식</span>
+              <strong id="selectedExamScoring">-</strong>
             </div>
           </div>
         </div>
@@ -102,7 +106,7 @@
       <div class="student-card glass-card">
         <p class="eyebrow">Check-in</p>
         <h2>응시 정보 입력</h2>
-        <p class="muted">이름과 고유 ID를 입력한 뒤 시작하면 서버 기준으로 제한 시간이 기록됩니다.</p>
+        <p class="muted">이름과 고유 ID를 입력한 뒤 시작하면 서버 기준으로 1시간 제한 시간이 기록됩니다.</p>
 
         <form id="startForm" class="student-form">
           <label>
@@ -119,6 +123,11 @@
           </label>
           <button id="startBtn" type="submit" class="primary-button">시험 시작</button>
         </form>
+
+        <div class="scoring-note">
+          <strong>점수 확인</strong>
+          <p>최종 제출 직후 100점 만점 환산 점수가 바로 표시됩니다. 정답은 배점만큼 가산, 미응답은 0점, 오답은 배점의 1/4만큼 감점됩니다.</p>
+        </div>
 
         <div class="operator-note">
           <strong>운영자 확인</strong>
@@ -187,6 +196,8 @@
       <h2 id="resultTitle">결과</h2>
       <p id="resultScore" class="score"></p>
       <p id="resultPercent" class="result-percent"></p>
+      <div id="resultBreakdown" class="result-breakdown" aria-label="채점 상세"></div>
+      <div id="resultScoringRule" class="result-scoring-rule"></div>
       <p id="resultMessage" class="muted"></p>
       <div class="result-actions">
         <button id="restartUiBtn" class="secondary-button" type="button">처음 화면으로 돌아가기</button>
@@ -200,6 +211,7 @@
       <p class="eyebrow">Final Check</p>
       <h2 id="confirmTitle">제출 전 최종 확인</h2>
       <p id="confirmSummary" class="modal-summary"></p>
+      <div id="modalScoringRule" class="modal-scoring-rule"></div>
       <div id="answerReviewGrid" class="answer-review-grid" aria-label="답안 검토"></div>
       <div class="modal-warning">
         <strong>제출 후에는 수정할 수 없습니다.</strong>

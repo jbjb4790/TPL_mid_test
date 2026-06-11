@@ -7,7 +7,7 @@ window.YP_EXAM_CONFIG = {
   siteTitle: "Young's Physics Online Exam",
 
   // Google Apps Script 배포 후 /exec 로 끝나는 웹 앱 URL을 붙여 넣으세요.
-  appsScriptUrl: "https://script.google.com/macros/s/AKfycbyjKYfhepP_jUD55eqCeCasn7Lx6tjMuimkl-PyLwwipK2jo4Ejlpl_Rzmig-oB4PU/exec",
+  appsScriptUrl: "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE",
 
   // 공개 가능한 채점 안내입니다. 실제 채점은 Apps Script의 SCORING_POLICY로 진행됩니다.
   scoring: {

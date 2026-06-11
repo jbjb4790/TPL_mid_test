@@ -48,6 +48,9 @@
     resultPercent: $("resultPercent"),
     resultBreakdown: $("resultBreakdown"),
     resultScoringRule: $("resultScoringRule"),
+    resultReviewSection: $("resultReviewSection"),
+    resultReviewSummary: $("resultReviewSummary"),
+    resultReviewList: $("resultReviewList"),
     resultMessage: $("resultMessage"),
     restartUiBtn: $("restartUiBtn"),
     confirmOverlay: $("confirmOverlay"),
@@ -188,6 +191,18 @@
       if (!response.ok) throw new Error(response.message || "시험을 시작할 수 없습니다.");
 
       state.student = student;
+
+      if (response.alreadySubmitted && response.result) {
+        state.answers = Array.isArray(response.result.answers) ? response.result.answers : state.answers;
+        elements.landingSection.hidden = true;
+        elements.startCard.hidden = true;
+        elements.quizCard.hidden = true;
+        elements.timerBox.hidden = true;
+        elements.resultCard.hidden = false;
+        showResult(response.result);
+        return;
+      }
+
       state.attemptId = response.attemptId;
       state.startedClientAt = Date.now();
       state.deadlineMs = Date.now() + Math.max(0, Number(response.remainingSeconds || state.exam.durationSeconds)) * 1000;
@@ -379,7 +394,8 @@
       });
 
       if (!response.ok) throw new Error(response.message || "제출에 실패했습니다.");
-      showResult(response);
+      const resultPayload = response.alreadySubmitted && response.result ? response.result : response;
+      showResult(resultPayload);
     } catch (error) {
       state.submitting = false;
       setQuizDisabled(false);
@@ -414,8 +430,55 @@
       <div><span>총 문항</span><strong>${questionCount}</strong><small>문항</small></div>
     `;
     elements.resultScoringRule.textContent = `채점 기준: ${getScoringText(state.exam)}. 총점 하한은 적용하지 않습니다.`;
+    renderPostExamReview(Array.isArray(response.reviewItems) ? response.reviewItems : []);
     elements.resultMessage.textContent = response.message || "구글 시트에 기록되었습니다.";
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function renderPostExamReview(reviewItems) {
+    elements.resultReviewSection.hidden = false;
+
+    const wrongItems = reviewItems.filter((item) => item.status === "wrong");
+    const blankItems = reviewItems.filter((item) => item.status === "blank");
+
+    if (reviewItems.length === 0) {
+      elements.resultReviewSummary.textContent = "틀린 문항과 미응답 문항이 없습니다. 모든 문항을 맞혔습니다.";
+      elements.resultReviewList.innerHTML = `
+        <div class="review-perfect">
+          <strong>Excellent!</strong>
+          <span>이번 시험에서는 다시 확인할 오답 문항이 없습니다.</span>
+        </div>
+      `;
+      return;
+    }
+
+    elements.resultReviewSummary.textContent = `오답 ${wrongItems.length}문항, 미응답 ${blankItems.length}문항입니다. 각 항목을 열면 문제 이미지와 함께 본인 답안과 정답을 확인할 수 있습니다.`;
+    elements.resultReviewList.innerHTML = reviewItems.map((item, itemIndex) => {
+      const questionNumber = Number(item.questionNumber || item.id || itemIndex + 1);
+      const question = getQuestionByNumber(questionNumber);
+      const statusClass = item.status === "blank" ? "blank" : "wrong";
+      const statusText = item.status === "blank" ? "미응답" : "오답";
+      const title = question ? (question.title || `${questionNumber}번`) : `${questionNumber}번`;
+      const image = question ? question.image : "";
+
+      return `
+        <details class="review-item ${statusClass}" ${itemIndex === 0 ? "open" : ""}>
+          <summary>
+            <span class="review-qno">${escapeHtml(title)}</span>
+            <span class="review-status ${statusClass}">${statusText}</span>
+            <span class="review-answer">내 답안 <strong>${escapeHtml(formatChoice(item.submitted))}</strong></span>
+            <span class="review-answer correct">정답 <strong>${escapeHtml(formatChoice(item.correct))}</strong></span>
+          </summary>
+          <div class="review-body">
+            <div class="review-answer-bar">
+              <div><span>내가 고른 답</span><strong>${escapeHtml(formatChoice(item.submitted))}</strong></div>
+              <div><span>정답</span><strong>${escapeHtml(formatChoice(item.correct))}</strong></div>
+            </div>
+            ${image ? `<figure class="review-question-figure"><img src="${escapeHtml(image)}" alt="${escapeHtml(state.exam.title)} ${escapeHtml(title)} 문제 이미지" /></figure>` : ""}
+          </div>
+        </details>
+      `;
+    }).join("");
   }
 
   function setQuizDisabled(disabled) {
@@ -473,6 +536,17 @@
 
       document.body.appendChild(script);
     });
+  }
+
+  function getQuestionByNumber(questionNumber) {
+    return state.exam.questions.find((question) => Number(question.id) === Number(questionNumber)) || state.exam.questions[Number(questionNumber) - 1];
+  }
+
+  function formatChoice(choice) {
+    if (choice === null || choice === "" || typeof choice === "undefined") return "미응답";
+    const number = Number(choice);
+    if (!Number.isFinite(number)) return String(choice);
+    return `${choiceLabels[number - 1] || number} (${number}번)`;
   }
 
   function getScoringPolicy() {

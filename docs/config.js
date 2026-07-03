@@ -100,6 +100,34 @@ window.YP_EXAM_CONFIG = {
       closeAt: null,
       defaultChoiceCount: 5,
       questions: makeQuestions("2024-1-mid", 18)
+    },
+    {
+      id: "physics-2023-mid-2",
+      title: "2023년 제2회 물리대회 중급과정",
+      shortTitle: "2023 제2회 중급",
+      description: "2023년 9월 물리대회 2회 중급과정 20문항",
+      year: "2023",
+      round: "제2회",
+      folder: "2023-2-mid",
+      durationSeconds: 60 * 60,
+      openAt: null,
+      closeAt: null,
+      defaultChoiceCount: 5,
+      questions: makeQuestions("2023-2-mid", 20)
+    },
+    {
+      id: "physics-2023-mid-1",
+      title: "2023년 제1회 물리대회 중급과정",
+      shortTitle: "2023 제1회 중급",
+      description: "The Physics League 중급과정 26문항 - 업로드한 2023년 중급 문제 PDF를 반영했습니다.",
+      year: "2023",
+      round: "제1회",
+      folder: "2023-1-mid",
+      durationSeconds: 60 * 60,
+      openAt: null,
+      closeAt: null,
+      defaultChoiceCount: 5,
+      questions: makeQuestions("2023-1-mid", 26)
     }
   ]
 };

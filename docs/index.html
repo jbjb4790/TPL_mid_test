@@ -106,23 +106,24 @@
       <div class="student-card glass-card">
         <p class="eyebrow">Check-in</p>
         <h2>응시 정보 입력</h2>
-        <p class="muted">이름과 고유 ID를 입력한 뒤 시작하면 서버 기준으로 1시간 제한 시간이 기록됩니다.</p>
+        <p class="muted">학교/학년과 이름을 입력한 뒤 시작하면 서버 기준으로 1시간 제한 시간이 기록됩니다.</p>
 
         <form id="startForm" class="student-form">
           <label>
-            반 / 소속
-            <input id="className" name="className" type="text" placeholder="예: 2학년 A반" autocomplete="organization" />
+            학교 / 학년 <span class="required">*</span>
+            <input id="schoolGrade" name="schoolGrade" type="text" placeholder="예: 영동고등학교 / 2학년" required autocomplete="organization" />
           </label>
           <label>
             이름 <span class="required">*</span>
             <input id="studentName" name="studentName" type="text" placeholder="예: 홍길동" required autocomplete="name" />
           </label>
-          <label>
-            학번 또는 고유 ID <span class="required">*</span>
-            <input id="studentId" name="studentId" type="text" placeholder="중복 제출 방지용" required autocomplete="off" />
-          </label>
           <button id="startBtn" type="submit" class="primary-button">시험 시작</button>
         </form>
+
+        <div class="identity-note">
+          <strong>응시자 구분 기준</strong>
+          <p>학교/학년과 이름의 조합으로 응시 기록을 구분합니다. 같은 학교·학년에 동명이인이 있으면 이름 뒤에 반 또는 번호를 함께 적어 주세요.</p>
+        </div>
 
         <div class="scoring-note">
           <strong>점수 확인</strong>

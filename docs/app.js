@@ -168,13 +168,12 @@
 
     const form = new FormData(elements.startForm);
     const student = {
-      className: String(form.get("className") || "").trim(),
-      studentName: String(form.get("studentName") || "").trim(),
-      studentId: String(form.get("studentId") || "").trim()
+      schoolGrade: String(form.get("schoolGrade") || "").trim(),
+      studentName: String(form.get("studentName") || "").trim()
     };
 
-    if (!student.studentName || !student.studentId) {
-      showMessage(elements.startMessage, "이름과 고유 ID를 입력해 주세요.", true);
+    if (!student.schoolGrade || !student.studentName) {
+      showMessage(elements.startMessage, "학교/학년과 이름을 입력해 주세요.", true);
       return;
     }
 
@@ -216,7 +215,7 @@
       elements.examSelect.disabled = true;
 
       elements.sideExamTitle.textContent = state.exam.title;
-      elements.sideStudentInfo.textContent = `${student.className ? student.className + " · " : ""}${student.studentName} (${student.studentId})`;
+      elements.sideStudentInfo.textContent = `${student.schoolGrade} · ${student.studentName}`;
       buildQuestionNav();
       renderQuestion();
       startTimer();

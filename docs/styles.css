@@ -410,6 +410,7 @@ input:focus {
   gap: 14px;
   margin-top: 18px;
 }
+.identity-note,
 .scoring-note,
 .operator-note {
   margin-top: 18px;
@@ -418,14 +419,21 @@ input:focus {
   border-radius: 18px;
   background: rgba(9, 103, 232, 0.06);
 }
+.identity-note {
+  border-style: solid;
+  border-color: rgba(15, 139, 95, 0.24);
+  background: rgba(15, 139, 95, 0.07);
+}
+.identity-note strong,
+.scoring-note strong,
+.operator-note strong { display: block; margin-bottom: 6px; }
+.identity-note p,
+.scoring-note p,
+.operator-note p { margin-bottom: 0; color: var(--muted); line-height: 1.6; }
 .scoring-note {
   border-style: solid;
   background: linear-gradient(135deg, rgba(9, 103, 232, 0.08), rgba(15, 139, 95, 0.08));
 }
-.scoring-note strong,
-.operator-note strong { display: block; margin-bottom: 6px; }
-.scoring-note p,
-.operator-note p { margin-bottom: 0; color: var(--muted); line-height: 1.6; }
 
 .quiz-layout {
   display: grid;

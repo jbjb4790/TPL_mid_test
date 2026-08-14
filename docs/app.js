@@ -437,31 +437,36 @@
   function renderPostExamReview(reviewItems) {
     elements.resultReviewSection.hidden = false;
 
-    const wrongItems = reviewItems.filter((item) => item.status === "wrong");
-    const blankItems = reviewItems.filter((item) => item.status === "blank");
-
-    if (reviewItems.length === 0) {
-      elements.resultReviewSummary.textContent = "틀린 문항과 미응답 문항이 없습니다. 모든 문항을 맞혔습니다.";
+    const items = Array.isArray(reviewItems) ? reviewItems : [];
+    if (items.length === 0) {
+      elements.resultReviewSummary.textContent = "해설 데이터가 아직 서버에서 전달되지 않았습니다. Apps Script를 최신 private-admin 코드로 다시 배포해 주세요.";
       elements.resultReviewList.innerHTML = `
-        <div class="review-perfect">
-          <strong>Excellent!</strong>
-          <span>이번 시험에서는 다시 확인할 오답 문항이 없습니다.</span>
+        <div class="review-perfect review-empty">
+          <strong>해설 데이터 없음</strong>
+          <span>점수는 계산되었지만 문항별 해설 목록을 불러오지 못했습니다.</span>
         </div>
       `;
       return;
     }
 
-    elements.resultReviewSummary.textContent = `오답 ${wrongItems.length}문항, 미응답 ${blankItems.length}문항입니다. 각 항목을 열면 문제 이미지와 함께 본인 답안과 정답을 확인할 수 있습니다.`;
-    elements.resultReviewList.innerHTML = reviewItems.map((item, itemIndex) => {
+    const correctItems = items.filter((item) => item.status === "correct");
+    const wrongItems = items.filter((item) => item.status === "wrong");
+    const blankItems = items.filter((item) => item.status === "blank");
+    const firstOpenIndex = Math.max(0, items.findIndex((item) => item.status !== "correct"));
+
+    elements.resultReviewSummary.textContent = `정답 ${correctItems.length}문항, 오답 ${wrongItems.length}문항, 미응답 ${blankItems.length}문항입니다. 각 문항을 열면 문제 이미지, 내 답안, 정답, 해설을 함께 확인할 수 있습니다.`;
+    elements.resultReviewList.innerHTML = items.map((item, itemIndex) => {
       const questionNumber = Number(item.questionNumber || item.id || itemIndex + 1);
       const question = getQuestionByNumber(questionNumber);
-      const statusClass = item.status === "blank" ? "blank" : "wrong";
-      const statusText = item.status === "blank" ? "미응답" : "오답";
+      const statusClass = getReviewStatusClass(item.status);
+      const statusText = getReviewStatusText(statusClass);
       const title = question ? (question.title || `${questionNumber}번`) : `${questionNumber}번`;
       const image = question ? question.image : "";
+      const topic = item.topic ? `<span class="review-topic">${escapeHtml(item.topic)}</span>` : "";
+      const explanation = formatExplanationHtml(item.explanation || "이 문항의 해설이 아직 등록되지 않았습니다.");
 
       return `
-        <details class="review-item ${statusClass}" ${itemIndex === 0 ? "open" : ""}>
+        <details class="review-item ${statusClass}" ${itemIndex === firstOpenIndex ? "open" : ""}>
           <summary>
             <span class="review-qno">${escapeHtml(title)}</span>
             <span class="review-status ${statusClass}">${statusText}</span>
@@ -473,11 +478,34 @@
               <div><span>내가 고른 답</span><strong>${escapeHtml(formatChoice(item.submitted))}</strong></div>
               <div><span>정답</span><strong>${escapeHtml(formatChoice(item.correct))}</strong></div>
             </div>
+            <div class="review-explanation">
+              <div class="review-explanation-head">
+                <strong>해설</strong>
+                ${topic}
+              </div>
+              <p>${explanation}</p>
+            </div>
             ${image ? `<figure class="review-question-figure"><img src="${escapeHtml(image)}" alt="${escapeHtml(state.exam.title)} ${escapeHtml(title)} 문제 이미지" /></figure>` : ""}
           </div>
         </details>
       `;
     }).join("");
+  }
+
+  function getReviewStatusClass(status) {
+    if (status === "blank") return "blank";
+    if (status === "wrong") return "wrong";
+    return "correct";
+  }
+
+  function getReviewStatusText(statusClass) {
+    if (statusClass === "blank") return "미응답";
+    if (statusClass === "wrong") return "오답";
+    return "정답";
+  }
+
+  function formatExplanationHtml(text) {
+    return escapeHtml(text).replace(/\n/g, "<br>");
   }
 
   function setQuizDisabled(disabled) {

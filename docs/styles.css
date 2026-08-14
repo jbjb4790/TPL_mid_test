@@ -864,7 +864,7 @@ input:focus {
   .orbit-card { min-height: 200px; }
 }
 
-/* 제출 후 오답/미응답 다시 보기 */
+/* 제출 후 전체 문항 해설 보기 */
 .result-card {
   width: min(980px, 100%);
 }
@@ -1028,5 +1028,68 @@ input:focus {
   }
   .review-answer-bar {
     grid-template-columns: 1fr;
+  }
+}
+
+
+/* 전체 해설 보기 추가 스타일 */
+.review-item.correct {
+  border-color: rgba(15, 139, 95, 0.14);
+}
+.review-status.correct {
+  color: #0f6f4c;
+  background: rgba(15, 139, 95, 0.10);
+}
+.review-item.correct[open] {
+  border-color: rgba(15, 139, 95, 0.26);
+}
+.review-topic {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(9, 103, 232, 0.08);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+.review-explanation {
+  margin: 16px 0;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(241, 247, 255, 0.92), rgba(255,255,255,0.92));
+  border: 1px solid rgba(9, 103, 232, 0.12);
+}
+.review-explanation-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.review-explanation-head strong {
+  color: var(--ink-2);
+  font-size: 1.02rem;
+}
+.review-explanation p {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.72;
+  word-break: keep-all;
+}
+.review-empty {
+  color: var(--warning);
+  background: rgba(255, 183, 77, 0.12);
+  border-color: rgba(255, 183, 77, 0.22);
+}
+
+@media (max-width: 760px) {
+  .review-explanation {
+    padding: 14px;
+  }
+  .review-explanation-head {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

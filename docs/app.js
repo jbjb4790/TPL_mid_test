@@ -454,7 +454,7 @@
     const blankItems = items.filter((item) => item.status === "blank");
     const firstOpenIndex = Math.max(0, items.findIndex((item) => item.status !== "correct"));
 
-    elements.resultReviewSummary.textContent = `정답 ${correctItems.length}문항, 오답 ${wrongItems.length}문항, 미응답 ${blankItems.length}문항입니다. 각 문항을 열면 문제 이미지, 내 답안, 정답, 해설을 함께 확인할 수 있습니다.`;
+    elements.resultReviewSummary.textContent = `정답 ${correctItems.length}문항, 오답 ${wrongItems.length}문항, 미응답 ${blankItems.length}문항입니다. 각 문항을 열면 문제 이미지, 내 답안, 정답, 계산 과정과 보기 판단이 포함된 상세 풀이를 확인할 수 있습니다.`;
     elements.resultReviewList.innerHTML = items.map((item, itemIndex) => {
       const questionNumber = Number(item.questionNumber || item.id || itemIndex + 1);
       const question = getQuestionByNumber(questionNumber);
@@ -480,10 +480,10 @@
             </div>
             <div class="review-explanation">
               <div class="review-explanation-head">
-                <strong>해설</strong>
+                <strong>상세 풀이</strong>
                 ${topic}
               </div>
-              <p>${explanation}</p>
+              <div class="solution-content">${explanation}</div>
             </div>
             ${image ? `<figure class="review-question-figure"><img src="${escapeHtml(image)}" alt="${escapeHtml(state.exam.title)} ${escapeHtml(title)} 문제 이미지" /></figure>` : ""}
           </div>
@@ -505,7 +505,29 @@
   }
 
   function formatExplanationHtml(text) {
-    return escapeHtml(text).replace(/\n/g, "<br>");
+    const titlePattern = /^(정답|핵심 원리|계산|풀이|보기 판단|정리|실험 절차|결론|주의):\s*(.*)$/;
+
+    return String(text || "")
+      .split(/\r?\n/)
+      .map((rawLine) => {
+        const line = rawLine.trim();
+        if (!line) return '<span class="solution-spacer" aria-hidden="true"></span>';
+
+        const titleMatch = line.match(titlePattern);
+        if (titleMatch) {
+          const title = escapeHtml(titleMatch[1]);
+          const body = escapeHtml(titleMatch[2] || "");
+          const modifier = titleMatch[1] === "결론" ? " conclusion" : (titleMatch[1] === "주의" ? " caution" : "");
+          return `<span class="solution-block${modifier}"><strong>${title}</strong>${body ? `<span>${body}</span>` : ""}</span>`;
+        }
+
+        if (/^\d+[.)]\s*/.test(line) || /^[ㄱ-ㅎ][.)]\s*/.test(line) || /^[-•]\s*/.test(line)) {
+          return `<span class="solution-step">${escapeHtml(line)}</span>`;
+        }
+
+        return `<span class="solution-text">${escapeHtml(line)}</span>`;
+      })
+      .join("");
   }
 
   function setQuizDisabled(disabled) {

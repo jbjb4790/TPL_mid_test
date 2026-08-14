@@ -864,7 +864,7 @@ input:focus {
   .orbit-card { min-height: 200px; }
 }
 
-/* 제출 후 전체 문항 해설 보기 */
+/* 제출 후 전체 문항 상세 풀이 */
 .result-card {
   width: min(980px, 100%);
 }
@@ -1032,7 +1032,7 @@ input:focus {
 }
 
 
-/* 전체 해설 보기 추가 스타일 */
+/* 전체 상세 풀이 추가 스타일 */
 .review-item.correct {
   border-color: rgba(15, 139, 95, 0.14);
 }
@@ -1072,11 +1072,60 @@ input:focus {
   color: var(--ink-2);
   font-size: 1.02rem;
 }
-.review-explanation p {
-  margin: 0;
+.solution-content {
+  display: grid;
+  gap: 8px;
   color: var(--ink);
-  line-height: 1.72;
+  line-height: 1.75;
   word-break: keep-all;
+}
+.solution-block {
+  display: grid;
+  grid-template-columns: minmax(76px, auto) 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(9, 103, 232, 0.09);
+}
+.solution-block strong {
+  color: var(--blue-2);
+  font-size: 0.86rem;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+}
+.solution-block > span {
+  min-width: 0;
+}
+.solution-block.conclusion {
+  background: rgba(15, 139, 95, 0.08);
+  border-color: rgba(15, 139, 95, 0.16);
+}
+.solution-block.conclusion strong,
+.solution-block.conclusion > span {
+  color: #0f6f4c;
+}
+.solution-block.caution {
+  background: rgba(255, 183, 77, 0.13);
+  border-color: rgba(196, 125, 0, 0.18);
+}
+.solution-block.caution strong {
+  color: #8a5a00;
+}
+.solution-step {
+  display: block;
+  padding: 2px 4px 2px 1.6em;
+  text-indent: -1.35em;
+  font-variant-numeric: tabular-nums;
+}
+.solution-text {
+  display: block;
+  padding-inline: 4px;
+}
+.solution-spacer {
+  display: block;
+  height: 2px;
 }
 .review-empty {
   color: var(--warning);
@@ -1091,5 +1140,13 @@ input:focus {
   .review-explanation-head {
     align-items: flex-start;
     flex-direction: column;
+  }
+  .solution-block {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .solution-step {
+    padding-left: 1.45em;
+    text-indent: -1.2em;
   }
 }

@@ -4,7 +4,7 @@
 (() => {
   "use strict";
 
-  const HISTORICAL_BACKEND_URL = "PASTE_HISTORICAL_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+  const HISTORICAL_BACKEND_URL = "https://script.google.com/macros/s/AKfycbxTyuUjP92_C6U1RgpuWTXpB6014wW7WVE_zdPbR04ypzjrgS4TpD-bwfkJRxhVuaPT/exec";
   const cfg = window.YP_EXAM_CONFIG;
 
   if (!cfg || !Array.isArray(cfg.exams)) {

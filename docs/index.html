@@ -7,6 +7,7 @@
   <title>Young's Physics 온라인 시험</title>
   <link rel="stylesheet" href="./styles.css" />
   <script defer src="./config.js"></script>
+  <script defer src="./historical-exams-2020-2022.js"></script>
   <script defer src="./app.js"></script>
 </head>
 <body>
@@ -31,7 +32,7 @@
       <div class="hero-copy">
         <p class="eyebrow">Young's Physics Exam Lab</p>
         <h1>물리 실력을 정확하게 기록하는 온라인 시험 공간</h1>
-        <p class="hero-description">문항은 한 문제씩 집중해서 풀고, 응답과 점수는 Google Sheets에 자동 기록됩니다. 제출 직후 점수, 정답, 내 답안, 문항별 해설을 한 화면에서 확인할 수 있습니다.</p>
+        <p class="hero-description">문항은 한 문제씩 집중해서 풀고, 응답과 점수는 Google Sheets에 자동 기록됩니다. 시험 선택부터 제출까지 Young's Physics 브랜딩에 맞춘 화면으로 구성했습니다.</p>
         <div class="hero-actions">
           <a href="#startCard" class="primary-link">응시 정보 입력하기</a>
           <button id="previewFirstExamBtn" class="ghost-button" type="button">첫 시험 미리 선택</button>
@@ -59,7 +60,7 @@
           </div>
           <div>
             <span>응시 시간</span>
-            <strong>시작 후 60분</strong>
+            <strong>시험별 제한</strong>
           </div>
         </div>
       </aside>
@@ -106,7 +107,7 @@
       <div class="student-card glass-card">
         <p class="eyebrow">Check-in</p>
         <h2>응시 정보 입력</h2>
-        <p class="muted">학교/학년과 이름을 입력한 뒤 시작하면 서버 기준으로 1시간 제한 시간이 기록됩니다.</p>
+        <p class="muted">학교/학년과 이름을 입력한 뒤 시작하면 서버 기준으로 선택한 시험의 제한 시간이 기록됩니다.</p>
 
         <form id="startForm" class="student-form">
           <label>
@@ -126,13 +127,13 @@
         </div>
 
         <div class="scoring-note">
-          <strong>점수 및 해설 확인</strong>
-          <p>최종 제출 직후 100점 만점 환산 점수와 함께 문항별 정답, 내가 고른 답, 해설을 바로 확인할 수 있습니다.</p>
+          <strong>점수 확인</strong>
+          <p>최종 제출 직후 100점 만점 환산 점수가 바로 표시됩니다. 정답은 배점만큼 가산, 미응답은 0점, 오답은 배점의 1/4만큼 감점됩니다.</p>
         </div>
 
         <div class="operator-note">
           <strong>운영자 확인</strong>
-          <p><code>config.js</code>의 <code>appsScriptUrl</code>을 Apps Script 웹 앱 URL로 바꿔야 실제 채점과 시트 기록이 동작합니다.</p>
+          <p>기존 시험은 <code>config.js</code>, 2020~2022 시험은 <code>historical-exams-2020-2022.js</code>의 Apps Script 웹 앱 URL을 설정해야 실제 채점과 시트 기록이 동작합니다.</p>
         </div>
         <p id="startMessage" class="message" role="status"></p>
       </div>
@@ -202,11 +203,11 @@
 
       <section id="resultReviewSection" class="post-exam-review" hidden>
         <div class="review-section-head">
-          <p class="eyebrow">Solution Review</p>
-          <h3>전체 문항 상세 풀이</h3>
+          <p class="eyebrow">Detailed Solutions</p>
+          <h3>전체 문항 정답과 상세 해설</h3>
           <p id="resultReviewSummary" class="muted"></p>
         </div>
-        <div id="resultReviewList" class="post-review-list" aria-label="오답과 정답 확인"></div>
+        <div id="resultReviewList" class="post-review-list" aria-label="전체 문항 정답과 상세 해설 확인"></div>
       </section>
 
       <p id="resultMessage" class="muted"></p>

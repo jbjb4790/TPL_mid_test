@@ -178,7 +178,7 @@
     }
 
     if (!isConfigured()) {
-      showMessage(elements.startMessage, "config.js의 appsScriptUrl을 먼저 설정해야 합니다.", true);
+      showMessage(elements.startMessage, "선택한 시험의 Apps Script 배포 URL을 먼저 설정해 주세요.", true);
       return;
     }
 
@@ -290,15 +290,18 @@
     const question = state.exam.questions[state.currentIndex];
     const count = getChoiceCount(question);
     const selected = state.answers[state.currentIndex];
+    const hasRichOptions = Array.isArray(question.options) && question.options.length > 0;
 
     elements.choiceGrid.style.setProperty("--choice-count", String(count));
+    elements.choiceGrid.classList.toggle("rich-options", hasRichOptions);
     elements.choiceGrid.innerHTML = Array.from({ length: count }, (_, index) => {
       const choice = index + 1;
       const isSelected = choice === selected;
+      const option = hasRichOptions ? question.options[index] : null;
       return `
         <button type="button" data-choice="${choice}" class="${isSelected ? "selected" : ""}" ${state.submitting ? "disabled" : ""}>
           <span class="choice-symbol">${choiceLabels[index] || choice}</span>
-          <span class="choice-text">${choice}번 선택</span>
+          <span class="choice-text">${renderOptionContent(option, choice)}</span>
         </button>
       `;
     }).join("");
@@ -437,97 +440,62 @@
   function renderPostExamReview(reviewItems) {
     elements.resultReviewSection.hidden = false;
 
-    const items = Array.isArray(reviewItems) ? reviewItems : [];
-    if (items.length === 0) {
-      elements.resultReviewSummary.textContent = "해설 데이터가 아직 서버에서 전달되지 않았습니다. Apps Script를 최신 private-admin 코드로 다시 배포해 주세요.";
+    if (reviewItems.length === 0) {
+      elements.resultReviewSummary.textContent = "서버에서 문항별 해설 정보를 받지 못했습니다. 최신 Apps Script 배포 버전을 확인해 주세요.";
       elements.resultReviewList.innerHTML = `
         <div class="review-perfect review-empty">
           <strong>해설 데이터 없음</strong>
-          <span>점수는 계산되었지만 문항별 해설 목록을 불러오지 못했습니다.</span>
+          <span>점수는 정상적으로 계산되었지만, 이 배포 버전에는 문항별 해설 데이터가 포함되지 않았습니다.</span>
         </div>
       `;
       return;
     }
 
-    const correctItems = items.filter((item) => item.status === "correct");
-    const wrongItems = items.filter((item) => item.status === "wrong");
-    const blankItems = items.filter((item) => item.status === "blank");
-    const firstOpenIndex = Math.max(0, items.findIndex((item) => item.status !== "correct"));
+    const correctItems = reviewItems.filter((item) => item.status === "correct");
+    const wrongItems = reviewItems.filter((item) => item.status === "wrong");
+    const blankItems = reviewItems.filter((item) => item.status === "blank");
+    const includesAllQuestions = reviewItems.length >= state.exam.questions.length;
 
-    elements.resultReviewSummary.textContent = `정답 ${correctItems.length}문항, 오답 ${wrongItems.length}문항, 미응답 ${blankItems.length}문항입니다. 각 문항을 열면 문제 이미지, 내 답안, 정답, 계산 과정과 보기 판단이 포함된 상세 풀이를 확인할 수 있습니다.`;
-    elements.resultReviewList.innerHTML = items.map((item, itemIndex) => {
+    elements.resultReviewSummary.textContent = includesAllQuestions
+      ? `전체 ${reviewItems.length}문항의 정답과 풀이입니다. 정답 ${correctItems.length}문항, 오답 ${wrongItems.length}문항, 미응답 ${blankItems.length}문항입니다.`
+      : `오답 ${wrongItems.length}문항, 미응답 ${blankItems.length}문항의 정답과 풀이입니다.`;
+
+    let firstOpenIndex = reviewItems.findIndex((item) => item.status !== "correct");
+    if (firstOpenIndex < 0) firstOpenIndex = 0;
+
+    elements.resultReviewList.innerHTML = reviewItems.map((item, itemIndex) => {
       const questionNumber = Number(item.questionNumber || item.id || itemIndex + 1);
       const question = getQuestionByNumber(questionNumber);
-      const statusClass = getReviewStatusClass(item.status);
-      const statusText = getReviewStatusText(statusClass);
+      const statusClass = item.status === "blank" ? "blank" : item.status === "correct" ? "correct" : "wrong";
+      const statusText = statusClass === "blank" ? "미응답" : statusClass === "correct" ? "정답" : "오답";
       const title = question ? (question.title || `${questionNumber}번`) : `${questionNumber}번`;
       const image = question ? question.image : "";
-      const topic = item.topic ? `<span class="review-topic">${escapeHtml(item.topic)}</span>` : "";
-      const explanation = formatExplanationHtml(item.explanation || "이 문항의 해설이 아직 등록되지 않았습니다.");
+      const explanation = String(item.explanation || item.solution || "해설이 등록되지 않았습니다.");
+      const submittedText = formatChoice(item.submitted, question);
+      const correctText = formatChoice(item.correct, question);
 
       return `
         <details class="review-item ${statusClass}" ${itemIndex === firstOpenIndex ? "open" : ""}>
           <summary>
             <span class="review-qno">${escapeHtml(title)}</span>
             <span class="review-status ${statusClass}">${statusText}</span>
-            <span class="review-answer">내 답안 <strong>${escapeHtml(formatChoice(item.submitted))}</strong></span>
-            <span class="review-answer correct">정답 <strong>${escapeHtml(formatChoice(item.correct))}</strong></span>
+            <span class="review-answer">내 답안 <strong>${escapeHtml(submittedText)}</strong></span>
+            <span class="review-answer correct-answer">정답 <strong>${escapeHtml(correctText)}</strong></span>
           </summary>
           <div class="review-body">
             <div class="review-answer-bar">
-              <div><span>내가 고른 답</span><strong>${escapeHtml(formatChoice(item.submitted))}</strong></div>
-              <div><span>정답</span><strong>${escapeHtml(formatChoice(item.correct))}</strong></div>
+              <div><span>내가 고른 답</span><strong>${escapeHtml(submittedText)}</strong></div>
+              <div><span>정답</span><strong>${escapeHtml(correctText)}</strong></div>
             </div>
             <div class="review-explanation">
-              <div class="review-explanation-head">
-                <strong>상세 풀이</strong>
-                ${topic}
-              </div>
-              <div class="solution-content">${explanation}</div>
+              <span class="review-explanation-label">상세 해설</span>
+              <p>${formatExplanationHtml(explanation)}</p>
             </div>
             ${image ? `<figure class="review-question-figure"><img src="${escapeHtml(image)}" alt="${escapeHtml(state.exam.title)} ${escapeHtml(title)} 문제 이미지" /></figure>` : ""}
           </div>
         </details>
       `;
     }).join("");
-  }
-
-  function getReviewStatusClass(status) {
-    if (status === "blank") return "blank";
-    if (status === "wrong") return "wrong";
-    return "correct";
-  }
-
-  function getReviewStatusText(statusClass) {
-    if (statusClass === "blank") return "미응답";
-    if (statusClass === "wrong") return "오답";
-    return "정답";
-  }
-
-  function formatExplanationHtml(text) {
-    const titlePattern = /^(정답|핵심 원리|계산|풀이|보기 판단|정리|실험 절차|결론|주의):\s*(.*)$/;
-
-    return String(text || "")
-      .split(/\r?\n/)
-      .map((rawLine) => {
-        const line = rawLine.trim();
-        if (!line) return '<span class="solution-spacer" aria-hidden="true"></span>';
-
-        const titleMatch = line.match(titlePattern);
-        if (titleMatch) {
-          const title = escapeHtml(titleMatch[1]);
-          const body = escapeHtml(titleMatch[2] || "");
-          const modifier = titleMatch[1] === "결론" ? " conclusion" : (titleMatch[1] === "주의" ? " caution" : "");
-          return `<span class="solution-block${modifier}"><strong>${title}</strong>${body ? `<span>${body}</span>` : ""}</span>`;
-        }
-
-        if (/^\d+[.)]\s*/.test(line) || /^[ㄱ-ㅎ][.)]\s*/.test(line) || /^[-•]\s*/.test(line)) {
-          return `<span class="solution-step">${escapeHtml(line)}</span>`;
-        }
-
-        return `<span class="solution-text">${escapeHtml(line)}</span>`;
-      })
-      .join("");
   }
 
   function setQuizDisabled(disabled) {
@@ -547,7 +515,7 @@
       userAgent: navigator.userAgent,
       ...data
     };
-    return jsonp(cfg.appsScriptUrl, payload);
+    return jsonp(getBackendUrl(), payload);
   }
 
   function jsonp(baseUrl, payload) {
@@ -591,11 +559,31 @@
     return state.exam.questions.find((question) => Number(question.id) === Number(questionNumber)) || state.exam.questions[Number(questionNumber) - 1];
   }
 
-  function formatChoice(choice) {
+  function formatChoice(choice, question) {
     if (choice === null || choice === "" || typeof choice === "undefined") return "미응답";
     const number = Number(choice);
     if (!Number.isFinite(number)) return String(choice);
-    return `${choiceLabels[number - 1] || number} (${number}번)`;
+
+    const label = `${choiceLabels[number - 1] || number} (${number}번)`;
+    const option = question && Array.isArray(question.options) ? question.options[number - 1] : null;
+    if (typeof option === "string" && option.trim()) return `${label} · ${option.trim()}`;
+    if (option && typeof option === "object" && option.alt) return `${label} · ${String(option.alt)}`;
+    return label;
+  }
+
+  function renderOptionContent(option, choice) {
+    if (typeof option === "string" && option.trim()) {
+      return `<span class="choice-option-label">${escapeHtml(option.trim())}</span>`;
+    }
+    if (option && typeof option === "object" && option.image) {
+      const alt = option.alt || `${choice}번 그림 선택지`;
+      return `<img class="choice-option-image" src="${escapeHtml(option.image)}" alt="${escapeHtml(alt)}" /><span class="choice-option-alt">${escapeHtml(alt)}</span>`;
+    }
+    return `${choice}번 선택`;
+  }
+
+  function formatExplanationHtml(text) {
+    return escapeHtml(text).replace(/\r?\n/g, "<br>");
   }
 
   function getScoringPolicy() {
@@ -621,6 +609,7 @@
   }
 
   function getChoiceCount(question) {
+    if (question && Array.isArray(question.options) && question.options.length > 0) return question.options.length;
     return Number(question.choiceCount || state.exam.defaultChoiceCount || 5);
   }
 
@@ -629,8 +618,13 @@
     return Number.isFinite(number) ? number : fallback;
   }
 
+  function getBackendUrl() {
+    return String((state.exam && state.exam.appsScriptUrl) || cfg.appsScriptUrl || "").trim();
+  }
+
   function isConfigured() {
-    return cfg.appsScriptUrl && !cfg.appsScriptUrl.includes("PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE");
+    const url = getBackendUrl();
+    return Boolean(url) && !url.includes("PASTE_") && /\/exec(?:$|[?#])/.test(url);
   }
 
   function getExamIdFromUrl() {
